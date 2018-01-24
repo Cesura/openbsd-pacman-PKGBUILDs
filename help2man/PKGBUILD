@@ -1,0 +1,35 @@
+pkgname=help2man
+pkgver=1.47.4
+pkgrel=1
+pkgdesc="Generates simple manual pages from program output"
+arch=('x86_64')
+license=('GPL')
+url="https://www.gnu.org/software/help2man/"
+#makedepends=('perl')
+
+source=("https://ftp.gnu.org/gnu/help2man/${pkgname}-${pkgver}.tar.xz")
+
+sha256sums=("d4ecf697d13f14dd1a78c5995f06459bff706fd1ce593d1c02d81667c0207753")
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--disable-nls
+
+	perl ./help2man.PL
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+	
+	# Better to do this manually
+	install -dm755 ${pkgdir}/usr/local/bin/
+	install -dm755 ${pkgdir}/usr/local/info/
+	install -dm755 ${pkgdir}/usr/local/man/man1/
+
+	install -Dm755 ./help2man ${pkgdir}/usr/local/bin/
+	install -Dm644 ./help2man.info ${pkgdir}/usr/local/info/
+	install -Dm644 ./help2man.1 ${pkgdir}/usr/local/man/man1/
+}

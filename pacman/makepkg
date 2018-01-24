@@ -2121,10 +2121,8 @@ write_pkginfo() {
 	else
 		local packager="Unknown Packager"
 	fi
-
-	#local size="$(/usr/bin/du -sk)"
-	#size="$(( ${size%%[^0-9]*} * 1024 ))"
-	size=666
+	
+	size=$1
 
 	merge_arch_attrs
 
@@ -2194,10 +2192,23 @@ create_package() {
 	fi
 
 	cd_safe "$pkgdir"
+
+	# fix package size	
+	total=0
+	files=$(find * -exec ls -l {} \;)
+	while read -r file; do
+		if [[ ! "$file" =~ ^total* ]]; then
+			filesize=$(echo $file | cut -d' ' -f5)
+			total=$(($total+$filesize))
+		fi
+	done <<< "$files"
+
+	
+
 	msg "$(gettext "Creating package \"%s\"...")" "$pkgname"
 
 	pkgarch=$(get_pkg_arch)
-	write_pkginfo > .PKGINFO
+	write_pkginfo $total > .PKGINFO
 
 	local comp_files=('.PKGINFO')
 
@@ -3482,21 +3493,21 @@ PACMAN_PATH=$(type -P $PACMAN)
 unset ALL_OFF BOLD BLUE GREEN RED YELLOW
 if [[ -t 2 && $USE_COLOR != "n" ]] && check_buildenv "color" "y"; then
 	# prefer terminal safe colored and bold text when tput is supported
-	if tput setaf 0 &>/dev/null; then
-		ALL_OFF="$(tput sgr0)"
-		BOLD="$(tput bold)"
-		BLUE="${BOLD}$(tput setaf 4)"
-		GREEN="${BOLD}$(tput setaf 2)"
-		RED="${BOLD}$(tput setaf 1)"
-		YELLOW="${BOLD}$(tput setaf 3)"
-	else
+	#if tput setaf 0 &>/dev/null; then
+	#	ALL_OFF="$(tput sgr0)"
+	#	BOLD="$(tput bold)"
+	#	BLUE="${BOLD}$(tput setaf 4)"
+	#	GREEN="${BOLD}$(tput setaf 2)"
+	#	RED="${BOLD}$(tput setaf 1)"
+	#	YELLOW="${BOLD}$(tput setaf 3)"
+	#else
 		ALL_OFF="\e[0m"
 		BOLD="\e[1m"
 		BLUE="${BOLD}\e[34m"
 		GREEN="${BOLD}\e[32m"
 		RED="${BOLD}\e[31m"
 		YELLOW="${BOLD}\e[33m"
-	fi
+	#fi
 fi
 readonly ALL_OFF BOLD BLUE GREEN RED YELLOW
 
