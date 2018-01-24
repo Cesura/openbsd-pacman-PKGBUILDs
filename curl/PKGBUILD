@@ -1,0 +1,31 @@
+pkgname=curl
+pkgver=7.55.1
+pkgrel=1
+pkgdesc="An URL retrieval utility and library"
+arch=('x86_64')
+license=('GPL')
+url="https://curl.haxx.se"
+groups=('base')
+depends=('nghttp2')
+source=("https://curl.haxx.se/download/${pkgname}-${pkgver}.tar.gz")
+
+sha256sums=("09576ea5e66672648d83dce3af16d0cb294d4cba2b5d166ade39655c495f4a20")
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/ \
+    		--sysconfdir=/etc \
+		--with-ca-bundles=/etc/ssl/cert.pem \
+		--without-libidn2 \
+		--without-libpsl2 \
+		--without-libssh2
+
+  	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}

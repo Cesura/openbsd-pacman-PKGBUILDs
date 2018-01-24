@@ -1,0 +1,50 @@
+pkgname=pacman
+pkgver=4.2.1
+pkgrel=1
+pkgdesc="A library-based package manager with dependency support"
+arch=('x86_64')
+license=('GPL')
+url="http://www.archlinux.org/pacman/"
+groups=('base')
+depends=('bash' 'libarchive' 'curl')
+source=("https://sources.archlinux.org/other/pacman/$pkgname-$pkgver.tar.gz"
+	"makepkg")
+
+sha256sums=("a142593c409ef21f6fde0075c7649a58a8ee0edbd2af3f82e4dc05cfc1d0b545"
+	"a312da473c79f1862606071a7586c4498572a1b3b4676c8386ea414f903b70c6")
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc
+
+  	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+  	gmake --ignore-errors DESTDIR="${pkgdir}" install
+	gmake --ignore-errors DESTDIR="${pkgdir}" -C contrib install
+
+	# Patched version of makepkg
+  	install -Dm755 ${srcdir}/makepkg ${pkgdir}/usr/local/bin/
+
+	# Install docs
+	install -dm755 ${pkgdir}/usr/local/man/man3/
+	install -dm755 ${pkgdir}/usr/local/man/man5/
+	install -dm755 ${pkgdir}/usr/local/man/man8/
+
+	install -Dm644 ./doc/libalpm.3 ${pkgdir}/usr/local/man/man3/
+	install -Dm644 ./doc/makepkg.conf.5 ${pkgdir}/usr/local/man/man5/
+	install -Dm644 ./doc/pacman.conf.5 ${pkgdir}/usr/local/man/man5/
+	install -Dm644 ./doc/makepkg.8 ${pkgdir}/usr/local/man/man8/
+	install -Dm644 ./doc/pacman-key.8 ${pkgdir}/usr/local/man/man8/
+	install -Dm644 ./doc/pacman.8 ${pkgdir}/usr/local/man/man8/
+	install -Dm644 ./doc/pactree.8 ${pkgdir}/usr/local/man/man8/
+	install -Dm644 ./doc/pkgdelta.8 ${pkgdir}/usr/local/man/man8/
+	install -Dm644 ./doc/repo-add.8 ${pkgdir}/usr/local/man/man8/
+	install -Dm644 ./doc/vercmp.8 ${pkgdir}/usr/local/man/man8/
+
+
+}

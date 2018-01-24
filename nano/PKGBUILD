@@ -1,0 +1,38 @@
+pkgname=nano
+pkgver=2.8.7
+pkgrel=1
+pkgdesc="Pico editor clone with enhancements"
+arch=('x86_64')
+license=('GPL')
+url="http://www.nano-editor.org"
+groups=('base')
+depends=()
+source=("https://www.nano-editor.org/dist/v2.8/${pkgname}-${pkgver}.tar.xz"
+	"patch-doc_nano_1"
+	"patch-src_Makefile_in")
+
+sha256sums=("fbe31746958698d73c6726ee48ad8b0612697157961a2e9aaa83b4aa53d1165a"
+	"d956239acb08e90557cb99cbf15356a7c2dd3a0564db4c1cb0779f8170d968ac"
+	"aea3bcbe0037d1c0ce754900f3e1bcbbface1e6f2e00e30f81431de582c86f32")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-doc_nano_1
+	patch -p0 -i ../patch-src_Makefile_in
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--disable-libmagic
+  	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+  	gmake DESTDIR=${pkgdir} install
+  	#install -DTm644 ${srcdir}/${pkgname}-${pkgver}/doc/sample.nanorc ${pkgdir}/etc/nanorc
+}

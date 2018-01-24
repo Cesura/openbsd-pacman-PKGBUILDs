@@ -1,0 +1,44 @@
+pkgname=xz
+pkgver=5.2.3
+pkgrel=1
+pkgdesc="LZMA compression and decompression tools"
+arch=('x86_64')
+license=('GPL')
+url="https://tukaani.org/xz/"
+groups=('base')
+depends=()
+
+source=("https://tukaani.org/xz/${pkgname}-${pkgver}.tar.gz"
+	"patch-config_h_in"
+	"patch-src_xz_main_c"
+	"patch-src_xzdec_xzdec_c")
+
+sha256sums=("71928b357d0a09a12a4b4c5fafca8c31c19b0e7d3b8ebb19622e96f26dbf28cb"
+	"5c8f8aaa8cf46b71b003781e1b97d3a4c69bf7d814b988fc70b9ec2d7285fb7d"
+	"6dc78ed7d6e3b8648e7600b7cfa3d2826957b837a0c4e71b195cca89e82f14a3"
+	"9dc64fb8beb0db8476de6ac2ff2655f7d0df73254a6a287da55e6941df2bf9a9")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-config_h_in
+	patch -p0 -i ../patch-src_xz_main_c
+	patch -p0 -i ../patch-src_xzdec_xzdec_c
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--disable-nls \
+		--enable-external-sha256
+
+	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}

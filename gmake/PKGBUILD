@@ -1,0 +1,53 @@
+pkgname=gmake
+pkgver=4.2.1
+pkgrel=1
+pkgdesc="GNU make"
+arch=('x86_64')
+license=('GPL')
+url="https://www.gnu.org/software/make/"
+groups=('base')
+depends=('gettext')
+
+source=("https://ftp.gnu.org/pub/gnu/make/make-${pkgver}.tar.gz"
+	"patch-Makefile_in"
+	"patch-doc_make_texi"
+	"patch-make_1"
+	"patch-tests_scripts_features_archives")
+
+sha256sums=("e40b8f018c1da64edd1cc9a6fce5fa63b2e707e404e20cad91fbae337c98a5b7"
+	"e9571d13f3305229cd375638cb9deeb504bdc89551780a1db7021bce43616090"
+	"a9d33c27d0cacc84420e789b3181ad3a7475d8e5de6aac03be316255d44edc0b"
+	"08a3d881f1b589b709e53e34c5923833ab8d8b83f7e84894ecb11b81c0107b13"
+	"005eb2fa85748b0d866470d88b5c3769c9f2a86a7584b486e8ab42ec1e171b1d")
+
+prepare() {
+	cd make-${pkgver}
+
+	patch -p0 -i ../patch-Makefile_in
+	patch -p0 -i ../patch-doc_make_texi
+	patch -p0 -i ../patch-make_1
+	patch -p0 -i ../patch-tests_scripts_features_archives
+}
+
+build() {
+	cd make-${pkgver}
+
+	export CPPFLAGS="-I/usr/local/include"
+	export LDFLAGS="-L/usr/local/lib"
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--program-prefix="g" \
+		--without-guile
+
+	gmake
+}
+
+package() {
+  	cd make-${pkgver}
+	
+	export CPPFLAGS="-I/usr/local/include"
+	export LDFLAGS="-L/usr/local/lib"
+
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}

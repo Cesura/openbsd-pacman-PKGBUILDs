@@ -1,0 +1,35 @@
+pkgname=lz4
+pkgver=1.8.0
+pkgrel=1
+pkgdesc="Fast BSD-licensed data compression"
+arch=('x86_64')
+license=('BSD')
+url="https://fastcompression.blogspot.com/p/lz4.html"
+groups=('base')
+depends=()
+source=("https://github.com/lz4/lz4/archive/v${pkgver}.tar.gz"
+	"patch-lib_Makefile"
+	"patch-examples_frameCompress_c")
+
+sha256sums=("2ca482ea7a9bb103603108b5a7510b7592b90158c151ff50a28f1ca8389fccf6"
+	"672a25c91f3b60dd694c5b50c2a30646a2194350a5faff249a712bb85620e565"
+	"7cc8b9c8c00e68932c7b6a608f870c7fcb8c362cd1bd2b953775d342839249f1")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-lib_Makefile
+	patch -p0 -i ../patch-examples_frameCompress_c
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+  	gmake DESTDIR=${pkgdir} install
+}

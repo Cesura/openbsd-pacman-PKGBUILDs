@@ -1,0 +1,41 @@
+pkgname=nghttp2
+pkgver=1.29.0
+pkgrel=1
+pkgdesc="HTTP/2 C Library and tools"
+arch=('x86_64')
+license=('MIT')
+url="http://nghttp2.org"
+groups=('base')
+depends=()
+#makedepends=('git')
+
+source=("https://github.com/nghttp2/nghttp2/releases/download/v${pkgver}/${pkgname}-${pkgver}.tar.gz"
+	"patch-Makefile_in")
+
+sha256sums=("e75cc2be3aa7a8390df615c27ebafaa5900f00e63b454b05c477d131de813548"
+	"a5c2316812b51a36302567c6f9f07a9d867a20c37da61982772048f90b34c07b")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-Makefile_in
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--disable-examples \
+		--disable-hpack-tools \
+		--disable-python-bindings \
+		--without-libxml2
+
+  	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}

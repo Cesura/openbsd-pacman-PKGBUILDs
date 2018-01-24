@@ -1,0 +1,53 @@
+pkgname=gettext
+pkgver=0.19.8.1
+pkgrel=1
+pkgdesc="GNU gettext runtime libraries and programs"
+arch=('x86_64')
+license=('GPL')
+url="https://www.gnu.org/software/make/"
+groups=('base')
+depends=('libiconv')
+
+source=("https://ftp.gnu.org/pub/gnu/gettext/${pkgname}-${pkgver}.tar.gz"
+	"patch-gettext-runtime_intl_dcigettext_c"
+	"patch-gettext-runtime_intl_l10nflist_c"
+	"patch-gettext-runtime_intl_localcharset_c"
+	"patch-gettext-runtime_intl_log_c"
+	"patch-gettext-runtime_intl_relocatable_c")
+
+sha256sums=("ff942af0e438ced4a8b0ea4b0b6e0d6d657157c5e2364de57baa279c1c125c43"
+	"1af52cc2b7b05a4025f1f078090bd214003a7a8a7a8a56c57e6e8e72a60a1d6f"
+	"6f8b1b02853dce9bb07de2840457ab1329337d503f2de5c8826ccbf46ed345d4"
+	"c57ad88afd903973369dd4b8be73729dfee84e309753dc8a092a303efeb88ab2"
+	"2319935c212ce6511b9ed08f5213597a71051b99d5ac365f117320885a999a6c"
+	"acddb07b6b0aa5f62b6e89ad105dc4db40cdcbcc9299b069c0f4732319066048")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-gettext-runtime_intl_dcigettext_c
+	patch -p0 -i ../patch-gettext-runtime_intl_l10nflist_c
+	patch -p0 -i ../patch-gettext-runtime_intl_localcharset_c
+	patch -p0 -i ../patch-gettext-runtime_intl_log_c
+	patch -p0 -i ../patch-gettext-runtime_intl_relocatable_c
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--disable-csharp \
+		--disable-java \
+		--with-libiconv-prefix="/usr/local" \
+		--with-included-gettext
+
+	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+	
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}

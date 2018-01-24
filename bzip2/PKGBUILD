@@ -1,0 +1,83 @@
+pkgname=bzip2
+pkgver=1.0.6
+pkgrel=1
+pkgdesc="A high-quality data compression program"
+arch=('x86_64')
+license=('custom')
+url="http://sources.redhat.con/bzip2"
+groups=('base')
+
+source=("http://www.bzip.org/${pkgver}/bzip2-${pkgver}.tar.gz"
+	"patch-Makefile"
+	"patch-bzgrep"
+	"patch-bzip2_c"
+	"patch-bzip2recover_c")
+
+sha256sums=("a2848f34fcd5d6cf47def00461fcb528a0484d8edef8208d6d2e2909dc61d9cd"
+	"1a162224056fe8fb1b0e370c1a1c9d39b7e0ed8c1a1c525a315db754e268fb97"
+	"70f9a6be3cea94c32c8f04b00362613f705ffec33e22c550b014a4f7154ca268"
+	"2547ab73b2836bbd25ebe34df0977f62e3c7466f8d457a6763948a73b388b6e1"
+	"773c495912ed72b3c894a5146e8a4cafbf0c9d77036df15e966201e6812afc2f")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-Makefile
+	patch -p0 -i ../patch-bzgrep
+	patch -p0 -i ../patch-bzip2_c
+	patch -p0 -i ../patch-bzip2recover_c
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+	export CFLAGS="-Wall -Winline -fomit-frame-pointer -fno-strength-reduce"
+
+	make PREFIX=/usr/local
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+	install -dm755 ${pkgdir}/usr/local/bin/
+	install -dm755 ${pkgdir}/usr/local/include/
+	install -dm755 ${pkgdir}/usr/local/lib/
+	install -dm755 ${pkgdir}/usr/local/man/man1/
+	install -dm755 ${pkgdir}/usr/local/share/doc/bzip2/
+
+	install -Dm755 ./bzip2 ${pkgdir}/usr/local/bin/
+	ln -s ./bzip2 ${pkgdir}/usr/local/bin/bunzip2
+	ln -s ./bzip2 ${pkgdir}/usr/local/bin/bzcat
+		
+	install -Dm755 ./bzip2recover ${pkgdir}/usr/local/bin/
+
+	install -Dm755 ./bzgrep ${pkgdir}/usr/local/bin/
+	ln -s ./bzgrep ${pkgdir}/usr/local/bin/bzfgrep
+	ln -s ./bzgrep ${pkgdir}/usr/local/bin/bzegrep
+
+	install -Dm755 ./bzdiff ${pkgdir}/usr/local/bin/
+	ln -s ./bzdiff ${pkgdir}/usr/local/bin/bzcmp
+
+	install -Dm755 ./bzmore ${pkgdir}/usr/local/bin/
+	ln -s ./bzmore ${pkgdir}/usr/local/bin/bzless
+
+	install -Dm644 ./libbz2.a ${pkgdir}/usr/local/lib/
+	install -Dm644 ./libbz2.so. ${pkgdir}/usr/local/lib/libbz2.so.10.4
+	
+	install -Dm644 ./bzip2.1 ${pkgdir}/usr/local/man/man1/
+	ln -s ./bzip2.1 ${pkgdir}/usr/local/man/man1/bunzip2.1
+	ln -s ./bzip2.1 ${pkgdir}/usr/local/man/man1/bzcat.1
+	ln -s ./bzip2.1 ${pkgdir}/usr/local/man/man1/bzip2recover.1
+	
+	install -Dm644 ./bzmore.1 ${pkgdir}/usr/local/man/man1/
+	ln -s ./bzmore.1 ${pkgdir}/usr/local/man/man1/bzless.1
+
+	install -Dm644 ./bzdiff.1 ${pkgdir}/usr/local/man/man1/
+	ln -s ./bzdiff.1 ${pkgdir}/usr/local/man/man1/bzcmp.1
+
+	install -Dm644 ./bzlib.h ${pkgdir}/usr/local/include/
+
+	install -Dm644 ./manual.html ${pkgdir}/usr/local/share/doc/bzip2/
+
+
+}

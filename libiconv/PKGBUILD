@@ -1,0 +1,50 @@
+pkgname=libiconv
+pkgver=1.14
+pkgrel=1
+pkgdesc="Character set conversion library"
+arch=('x86_64')
+license=('GPL')
+url="https://www.gnu.org/software/libiconv/"
+groups=('base')
+
+source=("https://ftp.gnu.org/pub/gnu/libiconv/${pkgname}-${pkgver}.tar.gz"
+	"patch-lib_relocatable_c"
+	"patch-libcharset_lib_config_charset"
+	"patch-libcharset_lib_localcharset_c"
+	"patch-src_Makefile_in"
+	"patch-tests_Makefile_in")
+
+sha256sums=("72b24ded17d687193c3366d0ebe7cde1e6b18f0df8c55438ac95be39e8a30613"
+	"51a4f74fed012d8d21592023956dd2210d9e1be0a554f027da1fe453c2aee6df"
+	"1b38caf5cf27c7dfc167e29b73e61d535a56bc99c13232bd9a078efd6b5c45b5"
+	"7149a00316cf61efd0b883ed6e1d7e96560e65b8d03eca331e9d4bd3326513e6"
+	"f9a3ef0d215cf7c02f8cd80e4fc639bcd1975c14afdef3f2df58e17ef94ab6e4"
+	"e21553e04440ebb2e3e345e60bdce94d55c0d0b08fe22ced83cce0c54b3972be")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-lib_relocatable_c
+	patch -p0 -i ../patch-libcharset_lib_config_charset
+	patch -p0 -i ../patch-libcharset_lib_localcharset_c
+	patch -p0 -i ../patch-src_Makefile_in
+	patch -p0 -i ../patch-tests_Makefile_in
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--disable-nls \
+		--enable-extra-encodings \
+		--enable-static
+
+	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}

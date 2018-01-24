@@ -1,0 +1,50 @@
+pkgname=libarchive
+pkgver=3.3.2
+pkgrel=1
+pkgdesc="Multi-format archive and compression library"
+arch=('x86_64')
+license=('GPL')
+url="http://libarchive.org"
+groups=('base')
+depends=('bzip2' 'lz4' 'xz' 'libiconv')
+
+source=("http://libarchive.org/downloads/${pkgname}-${pkgver}.tar.gz"
+	"patch-configure"
+	"patch-cpio_bsdcpio_1"
+	"patch-libarchive_archive_openssl_evp_private_h"
+	"patch-tar_bsdtar_1")
+
+sha256sums=("ed2dbd6954792b2c054ccf8ec4b330a54b85904a80cef477a1c74643ddafa0ce"
+	"533ad4bb11b24ed120545bd95869d8fc97953e6647e37544a1752a49016a0cd2"
+	"601093a7ed44033bc99375662ab1d156616dc21374c43c434167d266efda2dcd"
+	"81a7a2df615eea98851efcce810b4c90a6c0045328aade0abfdb1977977c51d4"
+	"4a631b8d6cf805bb471b7df9ec32340a0c0d532724a96668ae1fdc8e3d6bab43")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-configure
+	patch -p0 -i ../patch-cpio_bsdcpio_1
+	patch -p0 -i ../patch-libarchive_archive_openssl_evp_private_h
+	patch -p0 -i ../patch-tar_bsdtar_1
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+	export CFLAGS="-I/usr/local/include"
+	export LDFLAGS="-L/usr/local/lib"
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--without-nettle \
+		--without-xml2
+
+	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}
