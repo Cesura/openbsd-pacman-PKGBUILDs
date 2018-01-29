@@ -1,0 +1,78 @@
+pkgname=autoconf
+pkgver=2.69
+pkgrel=1
+pkgdesc="A GNU tool for automatically configuring source code"
+arch=('x86_64')
+license=('GPL')
+url="https://www.gnu.org/software/autoconf/"
+makedepends=('help2man')
+
+source=("https://ftp.gnu.org/gnu/autoconf/${pkgname}-${pkgver}.tar.gz"
+	"patch-Makefile_in"
+	"patch-bin_autom4te_in"
+	"patch-bin_autoupdate_in"
+	"patch-configure"
+	"patch-doc_Makefile_in"
+	"patch-doc_autoconf_texi"
+	"patch-lib_autoconf_Makefile_in"
+	"patch-lib_autotest_Makefile_in"
+	"patch-lib_m4sugar_Makefile_in"
+	"patch-lib_m4sugar_m4sugar_m4"
+	"patch-tests_Makefile_in"
+	"patch-tests_c_at"
+	"patch-tests_local_at"
+	"patch-tests_tools_at")
+
+sha256sums=("954bd69b391edc12d6a4a51a2dd1476543da5c6bbf05a95b59dc0dd6fd4c2969"
+	"be007c30aa7e05000833cfa986806a442b47a7134fd9367f2f978a04ed2aef08"
+	"400681b232781cb78fd0e16a9be03a99b5b4a0ea11e50e23631215845ca4e1c8"
+	"e374ab70ae866919f44637ecda14ad66b25c6f6fa909d4d2c4396c8fd3576bd8"
+	"694232e7c72a3d7793291376ad442587f5723ce765395994f39399d6ecbafb20"
+	"4012aaf875b28756fc1f464c39ae9afee9e33b2ce001828c963ee2ee00a06b25"
+	"237b3bef535a36f5324e94e89531e8097ed2ad3c09a64202d1ca65232a0e23b7"
+	"d5a65088411bf229b10144dab6642cf8d9e2bbf0c7579c4581b50d641c84b57c"
+	"325c16e35c191708fb23d8568e2d8e7de729c7abaf8ecc6abdb6b7882f58a94d"
+	"d86e1cf8eb5182168502174ef3d80e57dcc3753bcd14259ff91b077cea70c729"
+	"4482e02420e7cee29dbc2ce8a602de03fc93b39848672896f33191c46b969b0a"
+	"44a93f0ad9aeb511fac82ae3080b965f11f5e96c415a308fb7bf0b4ed212f12c"
+	"fefb0ac3a83727583f99c4381bb09104ac5df4e7996af976ccdab4a2de2151c8"
+	"e336e765258be4c49ce818e72e5e8607eb2f7f35bc962cf31538431d16ca517a"
+	"5e588310d3fa2bddd03ba2a221684d1eccbd5812be73b92847eea0304ea1a0bd")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-Makefile_in
+	patch -p0 -i ../patch-bin_autom4te_in
+	patch -p0 -i ../patch-bin_autoupdate_in
+	patch -p0 -i ../patch-configure
+	patch -p0 -i ../patch-doc_Makefile_in
+	patch -p0 -i ../patch-doc_autoconf_texi
+	patch -p0 -i ../patch-lib_autoconf_Makefile_in
+	patch -p0 -i ../patch-lib_autotest_Makefile_in
+	patch -p0 -i ../patch-lib_m4sugar_Makefile_in
+	patch -p0 -i ../patch-lib_m4sugar_m4sugar_m4
+	patch -p0 -i ../patch-tests_Makefile_in
+	patch -p0 -i ../patch-tests_c_at
+	patch -p0 -i ../patch-tests_local_at
+	patch -p0 -i ../patch-tests_tools_at
+	
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--mandir=/usr/local/man \
+		--infodir=/usr/local/info \
+		--without-lispdir
+
+  	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}

@@ -1,0 +1,39 @@
+pkgname=pcre
+pkgver=8.40
+pkgrel=1
+pkgdesc="Perl-compatible regular expression library"
+arch=('x86_64')
+license=('GPL')
+url="http:/www.pcre.org"
+groups=('base')
+source=("https://ftp.pcre.org/pub/pcre/${pkgname}-${pkgver}.tar.gz"
+	"patch-configure")
+
+sha256sums=("1d75ce90ea3f81ee080cdc04e68c9c25a9fb984861a0618be7bbf676b18eda3e"
+	"b48efd78bb1d848c7336eb265b1715a7135df1ad12faada11e402abc662e77e8")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-configure
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--enable-pcre8 \
+		--enable-pcre16 \
+		--enable-utf \
+		--enable-unicode-properties \
+		--enable-pcretest-libreadline
+
+  	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}

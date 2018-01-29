@@ -1,0 +1,40 @@
+pkgname=automake
+pkgver=1.15
+pkgrel=1
+pkgdesc="A GNU tool for automatically creating Makefiles"
+arch=('x86_64')
+license=('GPL')
+url="https://www.gnu.org/software/automake/"
+makedepends=('autoconf')
+
+source=("https://ftp.gnu.org/gnu/automake/${pkgname}-${pkgver}.tar.gz"
+	"patch-bin_automake_in"
+	"patch-doc_automake_texi")
+
+sha256sums=("7946e945a96e28152ba5a6beb0625ca715c6e32ac55f2e353ef54def0c8ed924"
+	"19970234995ecee89cdc30be335f92f3dcf89ac89ce438370e53683c7ef7b489"
+	"7d0cc3e700603403356222f6fa2956c19f529be77a1dbe7a286ed4cad5d33c7d")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-bin_automake_in
+	patch -p0 -i ../patch-doc_automake_texi
+	
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--infodir=/usr/local/info
+
+	gmake --ignore-errors
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+  	gmake --ignore-errors DESTDIR=${pkgdir} install
+}

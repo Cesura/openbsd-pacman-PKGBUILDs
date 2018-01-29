@@ -1,0 +1,49 @@
+pkgname=libelf
+pkgver=0.8.13
+pkgrel=1
+pkgdesc="Read, modify, create ELF files on any arch"
+arch=('x86_64')
+license=('GPL')
+url="http://www.mr511.de/software/"
+groups=('base')
+source=("http://www.mr511.de/software/${pkgname}-${pkgver}.tar.gz"
+	"patch-aclocal_m4")
+
+sha256sums=("591a9b4ec81c1f2042a97aa60564e0cb79d041c52faa7416acb38bc95bd2c76d"
+	"55362c557e5c2bba0b2665c4502c66e433225ed2a02bc0e11893b0ea67befa86")
+
+prepare() {
+	cd ${pkgname}-${pkgver}
+
+	patch -p0 -i ../patch-aclocal_m4
+}
+
+build() {
+	cd ${pkgname}-${pkgver}
+
+  	./configure --prefix=/usr/local \
+    		--sysconfdir=/usr/local/etc \
+		--disable-nls \
+		--enable-dynamic \
+		--disable-compat
+
+	
+  	gmake
+}
+
+package() {
+  	cd ${pkgname}-${pkgver}
+
+	# The install fails, so let's do it manually
+	install -dm755 ${pkgdir}/usr/local/include/libelf/
+	install -dm755 ${pkgdir}/usr/local/lib/pkgconfig/
+
+	install -Dm644 ./lib/libelf.a ${pkgdir}/usr/local/lib/
+	install -Dm644 ./lib/elf_repl.h ${pkgdir}/usr/local/include/libelf/
+	install -Dm644 ./lib/gelf.h ${pkgdir}/usr/local/include/libelf/
+	
+	install -Dm644 ./lib/elf_repl.h ${pkgdir}/usr/local/include/libelf/
+	install -Dm644 ./lib/gelf.h ${pkgdir}/usr/local/include/libelf/
+	
+
+}
